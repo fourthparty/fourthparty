@@ -1,0 +1,121 @@
+/*
+The file contains generic style rules, that don't depend on any special structure
+*/
+
+* {
+  background: transparent;
+  border: 0;
+  font-size: 100%;
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+
+html, body {
+  height: 100%;
+}
+
+html {
+  background-color: #fff;
+  background-image: url(../media/bg-header.png);
+  background-position: left top;
+  background-repeat: repeat-x;
+}
+
+body {
+  font-size: 13px;
+  line-height: 1.538em;
+  font-family: "helvetica neue",arial,helvetica,sans-serif;
+  font-style: normal;
+}
+
+strong {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 2.571em;
+  line-height: 1em;
+  margin-bottom: .5833em;
+  margin-top: .1667em;
+  font-family: georgia,serif;
+  font-weight: normal;
+}
+
+h2 {
+  color: #011234;
+  font-size: 2.154em;
+  font-weight: normal;
+  line-height: 1em;
+  margin-bottom: .5em;
+  margin-top: .5em;
+  font-family: georgia,serif;
+  font-style: italic;
+}
+
+h3 {
+  color: #011234;
+  font-size: 1.385em;
+  font-weight: normal;
+  line-height: 1.111em;
+  margin-bottom: .778em;
+  margin-top: 1.556em;
+  font-family: georgia,serif;
+  font-style: italic;
+}
+
+h4 {
+  color: #235;
+  font-size: 1em;
+}
+
+h5, h6 {
+  font-size: 1em;
+}
+
+a:link {
+  color: #003595;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #003595;
+  text-decoration: none;
+}
+
+a:hover, a:focus, a:active {
+  color: #003595;
+  text-decoration: underline;
+}
+
+pre,code, kbd, tt, samp, tt {
+  font-family: "andale mono",monospace;
+}
+
+li {
+  margin-left: 2em;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+ol {
+  list-style-type: decimal;
+  margin-left: 2em;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: 1.5em;
+}
+
+ul ul, ol ol, ol ul, ul ol {
+  margin-bottom: 0;
+}
+
+p, ul, ol, dl, address, table, pre, form, fieldset {
+  font-size: 1em;
+  margin-bottom: 1.5em;
+}
