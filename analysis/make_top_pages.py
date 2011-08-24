@@ -30,13 +30,17 @@ for pageIdRow in pageIdRows:
 # Traverse IDs to find top pages
 for pageId in pageIds:
 	lastPage = pageId;
-	lastParent = parentIds[pageIdDict[pageId]]
+	lastParent = parentIds[pageIdDict[lastPage]]
 	if lastParent in topPagesDict:
 		topPagesDict[pageId] = topPagesDict[lastParent]
 	else:
 		while lastParent != lastPage:
 			lastPage = lastParent
-			lastParent = parentIds[pageIdDict[lastPage]]
+			# When a page isn't in the database, treat it as a top page
+			try:
+				lastParent = parentIds[pageIdDict[lastPage]]
+			except KeyError:
+				topPagesDict[lastPage] = lastParent
 		topPagesDict[pageId] = lastParent
 	
 # Update the database with top pages
