@@ -30,7 +30,7 @@ for pageIdRow in pageIdRows:
 # Traverse IDs to find top pages
 for pageId in pageIds:
 	lastPage = pageId;
-	lastParent = parentIds[pageIdDict[lastPage]]
+	lastParent = parentIds[pageIdDict[pageId]]
 	if lastParent in topPagesDict:
 		topPagesDict[pageId] = topPagesDict[lastParent]
 	else:
