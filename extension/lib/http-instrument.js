@@ -51,6 +51,10 @@ exports.run = function() {
 			loggingDB.executeSQL(loggingDB.createInsert("http_request_headers", update), true);
 		}});
 		
+		// Associate the request ID with the HTTP channel object
+		var httpChannelProperties = subject.QueryInterface(Ci.nsIWritablePropertyBag2); 
+		httpChannelProperties.setPropertyAsInt32("request_id", requestID);
+		
 		requestID++;
 	});
 	
@@ -82,6 +86,13 @@ exports.run = function() {
 		update["page_id"] = pageManager.pageIDFromHttpChannel(httpChannel);
 		
 		update["is_cached"] = loggingDB.boolToInt(isCached);
+		
+		var initiatingRequestID = -1;
+		// Recover the request ID from the HTTP channel object
+		var httpChannelProperties = subject.QueryInterface(Ci.nsIPropertyBag2);
+		if(httpChannelProperties.hasKey("request_id"))
+			initiatingRequestID = httpChannelProperties.getPropertyAsInt32("request_id");
+		update["http_request_id"] = initiatingRequestID;
 		
 		loggingDB.executeSQL(loggingDB.createInsert("http_responses", update), true);
 		

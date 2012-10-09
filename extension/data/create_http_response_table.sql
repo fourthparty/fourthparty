@@ -6,5 +6,6 @@ CREATE TABLE http_responses(
 	response_status INTEGER,
 	response_status_text TEXT,
 	page_id INTEGER,
-	is_cached INTEGER
+	is_cached INTEGER,
+	http_request_id INTEGER
 );
