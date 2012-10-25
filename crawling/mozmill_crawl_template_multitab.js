@@ -1,7 +1,7 @@
 // Point to a local copy of the latest mozmill-test repository
 // See https://developer.mozilla.org/en/Mozmill_Tests/Shared_Modules
 // On Windows, format path like file://C:/...
-var MOZMILL_TEST_ROOT = "file://C:/Users/Administrator/FourthParty/mozmill-tests-4db9ba8beeaf/mozmill-tests-4db9ba8beeaf/";
+var MOZMILL_TEST_ROOT = "";
 
 var PrivateBrowsingAPI = require(MOZMILL_TEST_ROOT + "lib/private-browsing");
 var privateBrowsing;
