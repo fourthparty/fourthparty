@@ -57,13 +57,26 @@ var setupModule = function(module) {
 			return false;
 		}, "", 24*60*60*1000, 100, this);
 	};
+	
+	module.waitForAllTabsFree = function() {
+		controller.waitFor(function() {
+			clearLoadedTabs();
+			if(availableTabs.length == TABS)
+				return true;
+			return false;
+		}, "", 24*60*60*1000, 100, this);
+	};
+	
+	cyclePrivateBrowsing();
 }
 // BEGIN_REPEAT
 
 var testURL_NUMBER = function(){
 	var nextPageLocation = "URL";
-	if(nextPageLocation == "about:blank")
+	if(nextPageLocation == "about:blank") {
+		waitForAllTabsFree();
 		cyclePrivateBrowsing();
+	}
 
 	waitForFreeTab();
 	

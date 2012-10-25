@@ -42,7 +42,7 @@ for i in range(0, repeatTimes):
 	urlFile = open(sys.argv[2], "r")
 	for url in urlFile:
 		url = string.strip(url)
-		if string.find(url, "http") != 0:
+		if string.find(url, "http") != 0 and string.find(url, "about:") != 0:
 			url = "http://" + url
 		customRepeatSection = string.replace(repeatSectionText, "URL_NUMBER", str(urlIndex))
 		customRepeatSection = string.replace(customRepeatSection, "URL", url)
