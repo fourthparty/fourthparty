@@ -183,6 +183,29 @@ function log(instrumentedVariableName) {
 // Disable setting the document location directly
 // Jetpack scripts currently detach when the document is changed in JavaScript
 
+// Rough implementations of Object.getPropertyDescriptor and Object.getPropertyNames
+// See http://wiki.ecmascript.org/doku.php?id=harmony:extended_object_api
+Object.getPropertyDescriptor = function (subject, name) {
+	var pd = Object.getOwnPropertyDescriptor(subject, name);
+	var proto = Object.getPrototypeOf(subject);
+	while (pd === undefined && proto !== null) {
+		pd = Object.getOwnPropertyDescriptor(proto, name);
+		proto = Object.getPrototypeOf(proto);
+	}
+	return pd;
+};
+
+Object.getPropertyNames = function (subject, name) {
+	var props = Object.getOwnPropertyNames(subject);
+	var proto = Object.getPrototypeOf(subject);
+	while (proto !== null) {
+		props = props.concat(Object.getOwnPropertyNames(proto));
+		proto = Object.getPrototypeOf(proto);
+	}
+	// FIXME: remove duplicate property names from props
+	return props;
+};
+
 // Make an anonymous handler function that returns an object
 function makeHandler(object) {
 	return function() { return object; };
