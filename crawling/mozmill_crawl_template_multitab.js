@@ -6,9 +6,6 @@ var MOZMILL_TEST_ROOT = "";
 var PrivateBrowsingAPI = require(MOZMILL_TEST_ROOT + "lib/private-browsing");
 var privateBrowsing;
 
-var ModalDialogAPI = require(MOZMILL_TEST_ROOT + "lib/modal-dialog");
-var modalDialog;
-
 var PAGE_WAIT = 15000;
 
 var TABS = 5;
@@ -17,18 +14,6 @@ var loadingTime = [ ];
 
 var setupModule = function(module) {
 	module.controller = mozmill.getBrowserController();
-	
-	// Handle modal dialogs
-	module.modalDialogHandler = function(controller) {
-		resetModalDialogHandler();
-	};
-	
-	module.resetModalDialogHandler = function() {
-		modalDialog = new ModalDialogAPI.modalDialog(mozmill.getBrowserController().window);
-		modalDialog.start(modalDialogHandler);	
-	};
-	
-	resetModalDialogHandler();
 	
 	// Setup private browsing control
 	privateBrowsing = new PrivateBrowsingAPI.privateBrowsing(module.controller);
