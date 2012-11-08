@@ -1,6 +1,10 @@
+const {Cc, Ci} = require("chrome");
 var prefs = require("preferences-service");
 var pageMod = require("page-mod");
 const data = require("self").data;
+var timers = require("jp-timers");
+                     
+var MODAL_POLLING_DELAY = 3000;
 
 exports.main = function(options, callbacks) {
 	
@@ -37,4 +41,21 @@ exports.main = function(options, callbacks) {
 		contentScriptWhen: "end",
 		contentScriptFile: data.url("content-end.js")
 	});
+	
+	// Periodically poll for modals, see modal-dialog in mozmill-tests
+	var windowMediator = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+	var modalPoll = function() {
+		var windowEnumerator = windowMediator.getEnumerator('');
+		while(windowEnumerator.hasMoreElements()) {
+			var nextWindow = windowEnumerator.getNext();
+			var nextWindowChrome = nextWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation).QueryInterface(Ci.nsIDocShellTreeItem).treeOwner.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebBrowserChrome);
+			if(nextWindowChrome.isWindowModal())
+				nextWindow.close();
+			// Special case for unknown content type
+			if(nextWindow.document != null && nextWindow.document.title == "Opening" && nextWindow.document.getElementById("unknownContentType") != null && nextWindow.document.getElementById("unknownContentType").toString() == "[object XULElement]")
+				nextWindow.close();
+		}
+	};
+	var intervalID = timers.setInterval(modalPoll, MODAL_POLLING_DELAY);
+	
 };
