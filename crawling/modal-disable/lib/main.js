@@ -28,6 +28,13 @@ exports.main = function(options, callbacks) {
 	pageMod.PageMod({
 		include: "*",
 		contentScriptWhen: "start",
-		contentScriptFile: data.url("content.js")
+		contentScriptFile: data.url("content-start.js")
+	});
+	
+	// Inject content script to disable body modals
+	pageMod.PageMod({
+		include: "*",
+		contentScriptWhen: "end",
+		contentScriptFile: data.url("content-end.js")
 	});
 };
