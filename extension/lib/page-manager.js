@@ -43,11 +43,11 @@ exports.pageIDFromHttpChannel = function(httpChannel) {
 		var notificationCallbacks = null;
 		if(httpChannel.notificationCallbacks)
 			notificationCallbacks = httpChannel.notificationCallbacks;
-		else
+		else if(httpChannel.loadGroup)
 			notificationCallbacks = httpChannel.loadGroup.notificationCallbacks;
 		if(notificationCallbacks) {
-			var interfaceRequestor = notificationCallbacks.QueryInterface(Ci.nsIInterfaceRequestor);
-			var window = interfaceRequestor.getInterface(Ci.nsIDOMWindow);
+			var loadContext = notificationCallbacks.getInterface(Ci.nsILoadContext)
+			var window = loadContext.associatedWindow;
 			return pageIDFromWindow(window);
 		}
 	}
