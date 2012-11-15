@@ -52,7 +52,7 @@ exports.main = function(options, callbacks) {
 			if(nextWindowChrome.isWindowModal())
 				nextWindow.close();
 			// Special case for unknown content type
-			if(nextWindow.document != null && nextWindow.document.title == "Opening" && nextWindow.document.getElementById("unknownContentType") != null && nextWindow.document.getElementById("unknownContentType").toString() == "[object XULElement]")
+			if(nextWindow.document != null && nextWindow.document.title.indexOf("Opening") == 0 && nextWindow.document.getElementById("unknownContentType") != null && nextWindow.document.getElementById("unknownContentType").toString() == "[object XULElement]")
 				nextWindow.close();
 		}
 	};
