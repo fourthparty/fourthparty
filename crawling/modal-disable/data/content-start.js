@@ -26,9 +26,6 @@ window.__defineSetter__("onbeforeunload", function() { });
 //window.onunload
 //window.__defineSetter__("onunload", function() { });
 
-//window.print
-window.__defineGetter__("print", function() { return function () { }; });
-
 }
 
 //}
