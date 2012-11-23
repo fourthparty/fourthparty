@@ -235,7 +235,12 @@ function makeObjectProxy(objectName, object) {
 		},
 
 		delete: function(name) {
-			return delete object[name];
+			try {
+				return delete object[name];
+			}
+			catch(error) {
+				return null;
+			}
 		},
 
 		fix: function() {
@@ -251,18 +256,28 @@ function makeObjectProxy(objectName, object) {
 		},
 		
 		get: function(receiver, name) {
-			if(typeof object[name] == "function")
-				return makeFunctionProxy(object, objectName + "." + name, object[name]);
-			else {
-				logValue(objectName + "." + name, object[name], "get");
-				return object[name];
+			try {
+				if(typeof object[name] == "function")
+					return makeFunctionProxy(object, objectName + "." + name, object[name]);
+				else {
+					logValue(objectName + "." + name, object[name], "get");
+					return object[name];
+				}
+			}
+			catch(error) {
+				return null;
 			}
 		},
 		
 		set: function(receiver, name, val) {
-			logValue(objectName + "." + name, val, "set");
-			object[name] = val;
-			return true;
+			try {
+				logValue(objectName + "." + name, val, "set");
+				object[name] = val;
+				return true;
+			}
+			catch(error) {
+				return false;
+			}
 		},
 		
 		enumerate: function() {
@@ -312,7 +327,12 @@ function makeFunctionProxy(object, functionName, func) {
 		},
 
 		delete: function(name) {
-			return delete func[name];
+			try {
+				return delete func[name];
+			}
+			catch(error) {
+				return null;
+			}
 		},
 
 		fix: function() {
@@ -328,12 +348,22 @@ function makeFunctionProxy(object, functionName, func) {
 		},
 		
 		get: function(receiver, name) {
-			return func[name];
+			try {
+				return func[name];
+			}
+			catch(error) {
+				return null;
+			}
 		},
 		
 		set: function(receiver, name, val) {
-			func[name] = val;
-			return true;
+			try {
+				func[name] = val;
+				return true;
+			}
+			catch(error) {
+				return false;
+			}
 		},
 		
 		enumerate: function() {
@@ -347,8 +377,13 @@ function makeFunctionProxy(object, functionName, func) {
 		}
 	},
 	function() {
-		logCall(functionName, arguments);
-		return func.apply(object, arguments);
+		try {
+			logCall(functionName, arguments);
+			return func.apply(object, arguments);
+		}
+		catch(error) {
+			return null;
+		}
 	},
 	function() {
 		return null;
