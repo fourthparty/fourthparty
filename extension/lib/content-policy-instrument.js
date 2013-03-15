@@ -1,6 +1,11 @@
-const {Cc, Ci, components} = require("chrome");
+const Cc = require('chrome').Cc;
+const Ci = require('chrome').Ci;
+const Cu = require('chrome').Cu;
+const components = require('chrome').components;
+
 const data = require("self").data;
-var xpcom = require("xpcom");
+var xpcom = require('sdk/platform/xpcom');
+var xpcomUtils = Cu.import('resource://gre/modules/XPCOMUtils.jsm').XPCOMUtils;
 var loggingDB = require("logging-db");
 var pageManager = require("page-manager");
 
@@ -16,8 +21,8 @@ exports.run = function() {
 	InstrumentContentPolicy.prototype = {
 		classDescription: "Instruments the content policy API",
 		contractID: "@stanford.edu/instrument-content-policy;1",
-		classID: xpcom.makeUuid(),
-		QueryInterface: xpcom.utils.generateQI([Ci.nsIContentPolicy]),
+		classID: require('sdk/util/uuid').uuid(),
+		QueryInterface: xpcomUtils.generateQI([Ci.nsIContentPolicy]),
 		
 		shouldLoad: function(contentType, contentLocation, requestOrigin, context, mimeTypeGuess, extra) {
 			var update = { };
@@ -54,14 +59,25 @@ exports.run = function() {
 			return Ci.nsIContentPolicy.ACCEPT;
 		}
 	};
-	
+
+var xpcom = require('sdk/platform/xpcom');
+ 
+var factory = xpcom.Factory({
+  contract: InstrumentContentPolicy.prototype.contractID,
+  Component: InstrumentContentPolicy,
+  register: false,
+  unregister: false,
+});
+
+xpcom.register(factory);
+/*
 	xpcom.register({
 		create: InstrumentContentPolicy,
 		name: InstrumentContentPolicy.prototype.classDescription,
 		contractID: InstrumentContentPolicy.prototype.contractID,
 		uuid: InstrumentContentPolicy.prototype.classID
 	});
-	
+*/
 	var categoryManager = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
 	categoryManager.addCategoryEntry("content-policy", InstrumentContentPolicy.prototype.contractID, InstrumentContentPolicy.prototype.contractID, false, false);
 	

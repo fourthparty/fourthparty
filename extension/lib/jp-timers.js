@@ -37,8 +37,11 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-const {Cc,Ci} = require("chrome");
-var xpcom = require("xpcom");
+const Cc = require('chrome').Cc;
+const Ci = require('chrome').Ci;
+const Cu = require('chrome').Cu;
+
+var xpcomUtils = Cu.import('resource://gre/modules/XPCOMUtils.jsm').XPCOMUtils;
 
 var timerClass = Cc["@mozilla.org/timer;1"];
 var nextID = 1;
@@ -49,11 +52,10 @@ function TimerCallback(timerID, callback, params) {
   this._params = params;
 };
 TimerCallback.prototype = {
-  QueryInterface : xpcom.utils.generateQI([Ci.nsITimerCallback])
+  QueryInterface : xpcomUtils.generateQI([Ci.nsITimerCallback])
 };
 
 function TimeoutCallback(timerID, callback, params) {
-  memory.track(this);
   TimerCallback.apply(this, arguments)
   this._timerID = timerID;
 };
@@ -68,7 +70,6 @@ TimeoutCallback.prototype.notify = function notifyOnTimeout(timer) {
 };
 
 function IntervalCallback(timerID, callback, params) {
-  memory.track(this);
   TimerCallback.apply(this, arguments)
 };
 IntervalCallback.prototype = new TimerCallback();
@@ -109,8 +110,6 @@ var clearInterval = exports.clearInterval = function clearInterval(timerID) {
 
 function makeTimer(type, callback, callbackType, delay, params) {
   var timer = timerClass.createInstance(Ci.nsITimer);
-
-  memory.track(timer, "nsITimer");
 
   var timerID = nextID++;
   timers[timerID] = timer;
