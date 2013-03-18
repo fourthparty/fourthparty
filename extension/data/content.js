@@ -129,6 +129,8 @@
 			
 				inLog = true;
 				try {
+					console.log(['logValue', instrumentedVariableName, value, operation]);
+
 					self.port.emit("instrumentation", {
 						operation: operation,
 						symbol: instrumentedVariableName,
@@ -174,6 +176,9 @@
 					var serialArgs = [ ];
 					for (var i = 0; i < args.length; i++)
 						serialArgs.push(serializeObject(args[i]));
+
+					console.log(['logCall', instrumentedFunctionName, serialArgs]);
+
 					self.port.emit("instrumentation", {
 						operation: "call",
 						symbol: instrumentedFunctionName,
@@ -407,15 +412,6 @@
 				return makeHandler(makeFunctionProxy(object, functionName, func));
 			}
 			
-			// Make an instrumented variable handler
-			// TODO: Include support for setting variables
-			function makeVariableProxyHandler(name, value) {
-				return function() {
-					logValue(name, value, "get");
-					return value;
-				};
-			}
-			
 			// Instrument an object's property, treating the property as an object
 			function instrumentObjectPropertyAsObject(object, objectName, property, propertyName) {
 				//object.__defineGetter__(propertyName, makeObjectProxyHandler(objectName + "." + propertyName, property));
@@ -423,27 +419,30 @@
 				object = makeObjectProxy(objectName + "." + propertyName, object);
 			}
 			
-			// Instrument an object's property, treating the property as a variable
-			function instrumentObjectPropertyAsVariable(object, objectName, property, propertyName) {
-				//object.__defineGetter__(propertyName, makeVariableProxyHandler(objectName + "." + propertyName, property));
-				Object.defineProperty(object, propertyName, {get: makeVariableProxyHandler(objectName + "." + propertyName, property)});
-			}
-			
 			// Instrumentation
-			
-			// Instrument window.screen.*
-			// WORKS
-			instrumentObjectPropertyAsObject(window, "window", window.screen, "screen");
-			
+/*
 			// Instrument window.navigator.*
 			// window.navigator is defined as const, so must instrument variable by variable
 			// WORKS
 			var navigatorProperties = [ "appCodeName", "appMinorVersion", "appName", "appVersion", "cookieEnabled", "cpuClass", "onLine", "opsProfile", "platform", "product", "systemLanguage", "userAgent", "userLanguage", "userProfile" ];
-		
+
+			var contentStorage = {}; 
+
 			navigatorProperties.forEach(
 				function(property) {
-					instrumentObjectPropertyAsVariable(window.navigator, "window.navigator", window.navigator[property], property);
+					contentStorage["window.navigator." + property] = window.navigator[property];
+
+					Object.defineProperty(window.navigator, property, {
+					    configurable: true,
+					    get: function() { logValue("window.navigator." + property, contentStorage["window.navigator." + property], "get"); return contentStorage["window.navigator." + property] },
+					    set: function(value) { logValue("window.navigator." + property, contentStorage["window.navigator." + property], "set"); contentStorage["window.navigator." + property] = value; } 
+					});
 				});
+
+
+			// Instrument window.screen.*
+			// WORKS
+			instrumentObjectPropertyAsObject(window, "window", window.screen, "screen");
 		
 			// Instrument each plugin in window.navigator.plugins
 			// WORKS
@@ -465,8 +464,7 @@
 			// Instrument window.navigator.plugins.*
 			// WORKS
 			instrumentObjectPropertyAsObject(window.navigator, "window.navigator", window.navigator.plugins, "plugins");
-/*
-FS: TODO!
+
 			// Instrument each mime type in window.navigator.mimeTypes
 			// Uses deep copies of each mime type to preserve the path through the enabledPlugin property
 			// WORKS
@@ -482,7 +480,6 @@ FS: TODO!
 				// Instrument index lookup
 				window.navigator.mimeTypes.__defineGetter__(i, makeObjectProxyHandler("window.navigator.mimeTypes[" + i + "]", window.navigator.mimeTypes[i]));
 			}
-*/
 
 			// Instrument window.navigator.mimeTypes.*
 			// WORKS
@@ -508,7 +505,7 @@ FS: TODO!
 			// TODO: Better represent the element called on
 			//window.__defineGetter__("getComputedStyle", makeFunctionProxyHandler(window, "window.getComputedStyle", window.getComputedStyle));
 			window.getComputedStyle = makeFunctionProxy(window, "window.getComputedStyle", window.getComputedStyle);
-			
+*/
 			
 			// Instrument window.name
 			// WORKS
