@@ -13,8 +13,13 @@ var pageManager = require("page-manager");
 exports.run = function() {
 
 	// Set up logging
+	// content policy
 	var createContentPolicyTable = data.load("create_content_policy_table.sql");
 	loggingDB.executeSQL(createContentPolicyTable, false);
+	
+	// redirects
+	var createRedirectsTable = data.load("create_redirects_table.sql");
+	loggingDB.executeSQL(createRedirectsTable, false);
 
 	// Instrument content policy API
 	// Provides additional information about what caused a request and what it's for
@@ -30,6 +35,7 @@ exports.run = function() {
 				
 			registrar.registerFactory(this.classID, this.classDescription, this.contractID, this);
 			catMan.addCategoryEntry('content-policy', this.contractID, this.contractID, false, true);
+			catMan.addCategoryEntry('net-channel-event-sinks', this.contractID, this.contractID, false, true);
 
 			this.factoryAddonManagement();			
 		},
@@ -41,7 +47,7 @@ exports.run = function() {
 			update["request_origin"] = loggingDB.escapeString(requestOrigin ? requestOrigin.spec : "");
 			update["page_id"] = -1;
 
-			if(context) {
+			if (context) {
 				var domNode = null;
 				var domWindow = null;
 				try { domNode = context.QueryInterface(Ci.nsIDOMNode); }
@@ -49,12 +55,14 @@ exports.run = function() {
 				try { domWindow = context.QueryInterface(Ci.nsIDOMWindow); }
 				catch(error) { }
 				var window = null;
-				if(domNode && domNode.ownerDocument && domNode.ownerDocument.defaultView)
+				if (domNode && domNode.ownerDocument && domNode.ownerDocument.defaultView)
 					window = domNode.ownerDocument.defaultView;
 					//document = domNode.ownerDocument;
-				if(domWindow)
+
+				if (domWindow)
 					window = domWindow;
-				if(window) {
+					
+				if (window) {
 					update["page_id"] = pageManager.pageIDFromWindow(window);
 				}
 			}
@@ -68,6 +76,47 @@ exports.run = function() {
 		// Fires infrequently, instrumentation unused
 		shouldProcess: function(contentType, contentLocation, requestOrigin, context, mimeType, extra) {
 			return Ci.nsIContentPolicy.ACCEPT;
+		},
+
+		getNavInterface: function (channel) {
+			var callbacks = [],
+				i;
+
+			if (channel.notificationCallbacks) {
+				callbacks.push(channel.notificationCallbacks);
+			}
+
+			if (channel.loadGroup && channel.loadGroup.notificationCallbacks) {
+				callbacks.push(channel.loadGroup.notificationCallbacks);
+			}
+
+			for (i = 0; i < callbacks.length; i++) {
+				try {
+					var win = callbacks[i].getInterface(Ci.nsILoadContext).associatedWindow,
+						nav = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
+					return [win, nav];
+				} catch(e) {}
+			}
+		},
+
+		asyncOnChannelRedirect: function (oldChannel, newChannel, flags, callback) {
+			InstrumentContentPolicy.onChannelRedirect(oldChannel, newChannel, flags);
+			callback.onRedirectVerifyCallback(Cr.NS_OK);
+		},
+
+		onChannelRedirect: function (oldChannel, newChannel, flags) {
+			var nav = this.getNavInterface(oldChannel);
+
+			var update = { };
+			update["from_channel"] = loggingDB.escapeString(oldChannel.originalURI.spec);
+			update["to_channel"] = loggingDB.escapeString(newChannel.URI.spec);
+			
+			if (nav && nav[0]) {
+				update["parent_location"] = loggingDB.escapeString(window.document.location.href);
+			}
+
+
+			loggingDB.executeSQL(loggingDB.createInsert("redirects", update), true);
 		},
 
 		// nsIFactory interface implementation
@@ -101,6 +150,7 @@ exports.run = function() {
 						catMan = Cc['@mozilla.org/categorymanager;1'].getService(Ci.nsICategoryManager);
 	
 					catMan.deleteCategoryEntry('content-policy', InstrumentContentPolicy.contractID, InstrumentContentPolicy.BlockingPolicy);
+					catMan.deleteCategoryEntry('net-channel-event-sinks', InstrumentContentPolicy.contractID, InstrumentContentPolicy.BlockingPolicy);
 	
 					registrar.unregisterFactory(InstrumentContentPolicy.classID, InstrumentContentPolicy);
 				} catch (e) {}
