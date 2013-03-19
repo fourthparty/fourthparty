@@ -56,7 +56,7 @@ exports.executeSQL = function(statement, async) {
 		}
 	}
 	catch(error) {
-		console.log("Logging error: " + statement);
+		console.log(["Logging error: " + statement, error]);
 	}
 };
 
