@@ -129,8 +129,6 @@
 			
 				inLog = true;
 				try {
-					console.log(['logValue', instrumentedVariableName, value, operation]);
-
 					self.port.emit("instrumentation", {
 						operation: operation,
 						symbol: instrumentedVariableName,
@@ -176,8 +174,6 @@
 					var serialArgs = [ ];
 					for (var i = 0; i < args.length; i++)
 						serialArgs.push(serializeObject(args[i]));
-
-					console.log(['logCall', instrumentedFunctionName, serialArgs]);
 
 					self.port.emit("instrumentation", {
 						operation: "call",
