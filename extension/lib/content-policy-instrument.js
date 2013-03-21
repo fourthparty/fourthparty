@@ -2,6 +2,7 @@ const Cc = require('chrome').Cc;
 const Ci = require('chrome').Ci;
 const Cu = require('chrome').Cu;
 const Cm = require('chrome').Cm;
+const Cr = require('chrome').Cr;
 const components = require('chrome').components;
 
 const data = require("self").data;
@@ -24,7 +25,7 @@ exports.run = function() {
 	// Instrument content policy API
 	// Provides additional information about what caused a request and what it's for
 	var InstrumentContentPolicy = {
-		QueryInterface: xpcomUtils.generateQI([Ci.nsIContentPolicy]),
+		QueryInterface: xpcomUtils.generateQI([Ci.nsIContentPolicy, Ci.nsIChannelEventSink]),
 		classID: require('sdk/util/uuid').uuid(),
 		classDescription: "Instruments the content policy API",
 		contractID: "@stanford.edu/instrument-content-policy;1",
@@ -37,7 +38,7 @@ exports.run = function() {
 			catMan.addCategoryEntry('content-policy', this.contractID, this.contractID, false, true);
 			catMan.addCategoryEntry('net-channel-event-sinks', this.contractID, this.contractID, false, true);
 
-			this.factoryAddonManagement();			
+			this.factoryAddonManagement();
 		},
 
 		shouldLoad: function(contentType, contentLocation, requestOrigin, context, mimeTypeGuess, extra) {
@@ -110,11 +111,10 @@ exports.run = function() {
 			var update = { };
 			update["from_channel"] = loggingDB.escapeString(oldChannel.originalURI.spec);
 			update["to_channel"] = loggingDB.escapeString(newChannel.URI.spec);
-			
+
 			if (nav && nav[0]) {
 				update["parent_location"] = loggingDB.escapeString(nav[0].document.location.href);
 			}
-
 
 			loggingDB.executeSQL(loggingDB.createInsert("redirects", update), true);
 		},
