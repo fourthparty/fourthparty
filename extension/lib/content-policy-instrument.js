@@ -112,7 +112,7 @@ exports.run = function() {
 			update["to_channel"] = loggingDB.escapeString(newChannel.URI.spec);
 			
 			if (nav && nav[0]) {
-				update["parent_location"] = loggingDB.escapeString(window.document.location.href);
+				update["parent_location"] = loggingDB.escapeString(nav[0].document.location.href);
 			}
 
 
