@@ -94,8 +94,9 @@ exports.run = function() {
 			for (i = 0; i < callbacks.length; i++) {
 				try {
 					var win = callbacks[i].getInterface(Ci.nsILoadContext).associatedWindow,
-						nav = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
-					return [win, nav];
+						nav = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation),
+						top = callbacks[i].getInterface(Ci.nsILoadContext).topWindow;
+					return [win, nav, top];
 				} catch(e) {}
 			}
 		},
@@ -114,6 +115,10 @@ exports.run = function() {
 
 			if (nav && nav[0]) {
 				update["parent_location"] = loggingDB.escapeString(nav[0].document.location.href);
+			}
+
+			if (nav && nav[2]) {
+				update["top_location"] = loggingDB.escapeString(nav[2].document.location.href);
 			}
 
 			loggingDB.executeSQL(loggingDB.createInsert("redirects", update), true);
