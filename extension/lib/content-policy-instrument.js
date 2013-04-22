@@ -51,20 +51,25 @@ exports.run = function() {
 			if (context) {
 				var domNode = null;
 				var domWindow = null;
-				try { domNode = context.QueryInterface(Ci.nsIDOMNode); }
-				catch(error) { }
-				try { domWindow = context.QueryInterface(Ci.nsIDOMWindow); }
-				catch(error) { }
+				try { domNode = context.QueryInterface(Ci.nsIDOMNode); } catch(error) { }
+				try { domWindow = context.QueryInterface(Ci.nsIDOMWindow); } catch(error) { }
 				var window = null;
-				if (domNode && domNode.ownerDocument && domNode.ownerDocument.defaultView)
+				if (domNode && domNode.ownerDocument && domNode.ownerDocument.defaultView) {
 					window = domNode.ownerDocument.defaultView;
 					//document = domNode.ownerDocument;
+				}
 
-				if (domWindow)
+				if (domWindow) {
 					window = domWindow;
-					
+				}
+
 				if (window) {
 					update["page_id"] = pageManager.pageIDFromWindow(window);
+				}
+
+				if (update["page_id"] == -1) {
+					// using context as a node then
+					update["page_id"] = pageManager.pageIDFromWindow(context.defaultView);
 				}
 			}
 			update["mime_type_guess"] = loggingDB.escapeString(mimeTypeGuess ? mimeTypeGuess : "");
