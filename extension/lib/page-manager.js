@@ -1,5 +1,6 @@
 const {Cc, Ci} = require("chrome");
 const data = require("self").data;
+var tabsLib = require("sdk/tabs/helpers");
 var loggingDB = require("logging-db");
 var observerService = require("observer-service");
 
@@ -29,29 +30,44 @@ var insertPage = function(pageID, location, parentID) {
 exports.insertPage = insertPage;
 
 var pageIDFromWindow = function (window) {
-	try {
-		return window.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils).currentInnerWindowID;
-	} catch(error) {
-		//console.log(['pageIDFromWindow error', error]);	
-	}
-	return -1;
+	var tab = tabsLib.getTabForWindow(window);
+	return tab ? tab.id % 100000 : -1;
 };
 exports.pageIDFromWindow = pageIDFromWindow;
 
-exports.pageIDFromHttpChannel = function(httpChannel) {
+exports.pageIDFromHttpChannel = function getTabFromChannel(aChannel) {
 	try {
-		var notificationCallbacks = null;
-		if(httpChannel.notificationCallbacks)
-			notificationCallbacks = httpChannel.notificationCallbacks;
-		else if(httpChannel.loadGroup)
-			notificationCallbacks = httpChannel.loadGroup.notificationCallbacks;
-		if(notificationCallbacks) {
-			var loadContext = notificationCallbacks.getInterface(Ci.nsILoadContext)
-			var window = loadContext.associatedWindow;
-			return pageIDFromWindow(window);
+		var notificationCallbacks = aChannel.notificationCallbacks ? aChannel.notificationCallbacks : aChannel.loadGroup.notificationCallbacks;
+		if (!notificationCallbacks) {
+			return -1;
 		}
-	} catch(error) {
-		//console.log("Error getting page ID: " + httpChannel.URI.spec);
+
+		return tabsLib.getTabForWindow(notificationCallbacks.getInterface(Ci.nsIDOMWindow)).id % 100000;
+	} catch (e) {
+		return -1;
 	}
-	return -1;
+};
+
+exports.pageIDFromContext = function getTabForContext(context) {
+	// If it is the main frame
+	if (context._contentWindow instanceof Ci.nsIDOMWindow)
+		return SDK.tabsLib.getTabForWindow(context._contentWindow.top);
+
+	if (!(context instanceof Ci.nsIDOMWindow)) {	
+		// If this is an element, get the corresponding document
+		if (context instanceof Ci.nsIDOMNode && context.ownerDocument)
+			context = context.ownerDocument;
+		// Now we should have a document, get its window
+		if (context instanceof Ci.nsIDOMDocument)
+			context = context.defaultView;
+		else
+			context = null;
+	}
+
+	// If we have a window now - get the tab
+	if (context) {
+		return tabsLib.getTabForWindow(context.top);
+	} else {
+		return null;
+	}
 };
