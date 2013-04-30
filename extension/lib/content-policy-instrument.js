@@ -69,7 +69,7 @@ exports.run = function() {
 
 				if (update["page_id"] == -1) {
 					// using context as a node then
-					update["page_id"] = pageManager.pageIDFromContext(context);
+					update["page_id"] = pageManager.pageIDFromWindow(context.defaultView);
 				}
 			}
 			update["mime_type_guess"] = loggingDB.escapeString(mimeTypeGuess ? mimeTypeGuess : "");
