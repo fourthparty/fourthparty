@@ -60,6 +60,18 @@ exports.executeSQL = function(statement, async) {
 	}
 };
 
+exports.executeSQLWithReturn = function(statement) {
+	try {
+		statement = dbConnection.createStatement(statement);  
+		while (statement.executeStep()) {
+			return statement.row.page_id;
+		}
+	}
+	catch(error) {
+		console.log(["Logging error: " + statement, error]);
+	}
+};
+
 exports.escapeString = function(string) {
 	// Convert to string if necessary
 	if(typeof string != "string")
@@ -93,5 +105,27 @@ exports.createInsert = function(table, update) {
 		first = false;
 	}
 	statement = statement + ") " + values + ")";
+	return statement;
+}
+
+exports.createUpdate = function(table, id, update) {
+	var statement = "UPDATE " + table + " SET ";
+	var first = true;
+	for(var field in update) {
+		statement += (first ? "" : ", ") + field + '=' + update[field];
+		first = false;
+	}
+	statement = statement + " WHERE id=" + id;
+	return statement;
+}
+
+exports.createSelect = function (table, id, columns) {
+	var statement = "SELECT ";
+	var first = true;
+	for(var i = 0; i < columns.length; i++) {
+		statement += (first ? "" : ", ") + columns[i];
+		first = false;
+	}
+	statement = statement + " FROM " + table + " WHERE id=" + id;
 	return statement;
 }
