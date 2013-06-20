@@ -14,9 +14,9 @@ exports.setup = function() {
 		var pageID = pageIDFromWindow(window);
 		var parentID = window.parent ? pageIDFromWindow(window.parent) : -1;
 		var location = window.document && window.document.location ? window.document.location : "";
+
 		insertPage(pageID, location, parentID);
 	});
-	
 };
 
 var insertPage = function(pageID, location, parentID) {
@@ -31,8 +31,8 @@ exports.insertPage = insertPage;
 var pageIDFromWindow = function (window) {
 	try {
 		return window.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils).currentInnerWindowID;
-	}
-	catch(error) {
+	} catch(error) {
+		//console.log(['pageIDFromWindow error', error]);	
 	}
 	return -1;
 };
@@ -50,8 +50,7 @@ exports.pageIDFromHttpChannel = function(httpChannel) {
 			var window = loadContext.associatedWindow;
 			return pageIDFromWindow(window);
 		}
-	}
-	catch(error) {
+	} catch(error) {
 		//console.log("Error getting page ID: " + httpChannel.URI.spec);
 	}
 	return -1;

@@ -4,6 +4,8 @@ const data = require("self").data;
 var loggingDB = require("logging-db");
 var timers = require("jp-timers");
 var pageManager = require("page-manager");
+var windowUtils = require('sdk/window/utils');
+var need_sanitization = {};
 
 exports.run = function() {
 
@@ -19,6 +21,34 @@ exports.run = function() {
 	var createHttpResponseHeadersTable = data.load("create_http_response_headers_table.sql");
 	loggingDB.executeSQL(createHttpResponseHeadersTable, false);
 	var responseID = 0;
+
+	windowUtils.getMostRecentBrowserWindow().gBrowser.addProgressListener({
+		onStateChange: function (aWebProgress, aRequest, aStateFlags, aStatus) {
+			aRequest.QueryInterface(Ci.nsIHttpChannel);
+
+			if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+				var httpChannelProperties = aRequest.QueryInterface(Ci.nsIPropertyBag2);
+
+				if (httpChannelProperties.hasKey("request_id")) {
+					var request_id = httpChannelProperties.getPropertyAsInt32("request_id"),
+						page_id = pageManager.pageIDFromHttpChannel(aRequest),
+						unsanitized_page_id = loggingDB.executeSQLWithReturn(loggingDB.createSelect('http_requests', request_id, ['page_id'])),
+						ns = need_sanitization[unsanitized_page_id];
+
+					if (ns) {
+						for (var i = 0 ; i < ns.length; i++) {
+							loggingDB.executeSQL(loggingDB.createUpdate('http_requests', ns[i], { page_id: page_id }));
+						}
+
+						delete ns;
+					}
+
+					loggingDB.executeSQL(loggingDB.createUpdate('http_requests', request_id, { page_id: page_id }));
+				}
+
+			}
+		}
+	});
 
 	// Instrument HTTP requests
 	observerService.add("http-on-modify-request", function(subject, data) {
@@ -55,6 +85,14 @@ exports.run = function() {
 		var httpChannelProperties = subject.QueryInterface(Ci.nsIWritablePropertyBag2); 
 		httpChannelProperties.setPropertyAsInt32("request_id", requestID);
 		
+		if (httpChannel.loadFlags &  Ci.nsIChannel.LOAD_DOCUMENT_URI) {
+			if (!need_sanitization.hasOwnProperty(update["page_id"])) {
+				need_sanitization[update["page_id"]] = [];
+			}
+
+			need_sanitization[update["page_id"]].push(requestID);
+		}
+
 		requestID++;
 	});
 	
