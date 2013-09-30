@@ -2,7 +2,7 @@
 (function () {
 
 // Bypass the Jetpack DOM wrapper
-//let(window = unsafeWindow) {
+let(window = unsafeWindow) {
 
 // Header guard workaround for Jetpack multiple script loading bug
 if(typeof window.navigator.instrumented == "undefined") {
@@ -496,6 +496,6 @@ window.__defineSetter__("name", function(value) { logValue("window.name", value,
 
 }
 
-//}
+}
 
 })();

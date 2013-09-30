@@ -1,8 +1,7 @@
-var pageMod = require("page-mod");
-const data = require("self").data;
+var pageMod = require("sdk/page-mod");
+const data = require("sdk/self").data;
 var loggingDB = require("logging-db");
 var pageManager = require("page-manager");
-var tabs = require("tabs");
 
 exports.run = function() {
 
@@ -19,19 +18,18 @@ exports.run = function() {
 		contentScriptWhen: "start",
 		contentScriptFile: data.url("content.js"),
 		onAttach: function onAttach(worker) {
-			var pageID = worker.windowID;
-
+			var url = worker.url;
 			worker.port.on("instrumentation", function(data) {
 				var update = {};
-				
+			
 				update["id"] = javascriptID;
-				update["page_id"] = pageID;
+				update["url"] = loggingDB.escapeString(url);
 				update["symbol"] = loggingDB.escapeString(data.symbol);
 				update["operation"] = loggingDB.escapeString(data.operation);
 				update["value"] = loggingDB.escapeString(data.value);
 
 				loggingDB.executeSQL(loggingDB.createInsert("javascript", update), true);
-				
+			
 				if(data.operation == "call") {
 					var call_update = {};
 					call_update["javascript_id"] = javascriptID;
@@ -41,10 +39,9 @@ exports.run = function() {
 						loggingDB.executeSQL(loggingDB.createInsert("javascript_calls", call_update), true);
 					}
 				}
-				
+			
 				javascriptID++;
 			});
-
 		}
 	});
 	

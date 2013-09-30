@@ -1,5 +1,5 @@
 const {Cc, Ci} = require("chrome");
-var timers = require("jp-timers");//"timers");
+var timers = require("timers");
 var dbConnection = null;
 var asyncCallsMade = false;
 var asyncQueue = [];

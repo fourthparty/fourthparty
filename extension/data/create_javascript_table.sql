@@ -1,6 +1,6 @@
 CREATE TABLE javascript(
 	id INTEGER PRIMARY KEY ASC,
-	page_id INTEGER,
+	url TEXT,
 	symbol TEXT,
 	operation TEXT,
 	value TEXT

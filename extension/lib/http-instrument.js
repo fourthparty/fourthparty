@@ -2,7 +2,7 @@ const {Cc, Ci} = require("chrome");
 var observerService = require("observer-service");
 const data = require("self").data;
 var loggingDB = require("logging-db");
-var timers = require("jp-timers");
+var timers = require("timers");
 var pageManager = require("page-manager");
 
 exports.run = function() {
