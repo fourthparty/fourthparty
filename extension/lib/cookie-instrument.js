@@ -1,6 +1,6 @@
 const {Cc, Ci} = require("chrome");
-var observerService = require("observer-service");
-const data = require("self").data;
+var events = require("sdk/system/events");
+const data = require("sdk/self").data;
 var loggingDB = require("logging-db");
 
 exports.run = function() {
@@ -10,13 +10,14 @@ exports.run = function() {
 	loggingDB.executeSQL(createCookiesTable, false);
 
 	// Instrument cookie changes
-	observerService.add("cookie-changed", function(subject, data) {
+	events.on("cookie-changed", function(event) {
+		var data = event.data;
 		// TODO: Support other cookie operations
 		if(data == "deleted" || data == "added" || data == "changed") {	
 			var update = {};
 			update["change"] = loggingDB.escapeString(data);
 			
-			var cookie = subject.QueryInterface(Ci.nsICookie2);
+			var cookie = event.subject.QueryInterface(Ci.nsICookie2);
 			update["creationTime"] = cookie.creationTime;
 			update["expiry"] = cookie.expiry;
 			update["is_http_only"] = loggingDB.boolToInt(cookie.isHttpOnly);

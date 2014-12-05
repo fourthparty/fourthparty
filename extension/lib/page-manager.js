@@ -1,7 +1,7 @@
 const {Cc, Ci} = require("chrome");
-const data = require("self").data;
+const data = require("sdk/self").data;
 var loggingDB = require("logging-db");
-var observerService = require("observer-service");
+var events = require("sdk/system/events");
 
 exports.setup = function() {
 	// Set up logging
@@ -9,8 +9,8 @@ exports.setup = function() {
 	loggingDB.executeSQL(createPagesTable, false);
 	
 	// Log new windows
-	observerService.add("content-document-global-created", function(subject, data) {
-		var window = subject;
+	events.on("content-document-global-created", function(event) {
+		var window = event.subject;
 		var pageID = pageIDFromWindow(window);
 		var parentID = window.parent ? pageIDFromWindow(window.parent) : -1;
 		var location = window.document && window.document.location ? window.document.location : "";

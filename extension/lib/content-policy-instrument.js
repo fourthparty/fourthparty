@@ -1,5 +1,5 @@
 const {Cc, Ci, components} = require("chrome");
-const data = require("self").data;
+const data = require("sdk/self").data;
 var { Class } = require('sdk/core/heritage');
 var { xpcom, Unknown, Service } = require('sdk/platform/xpcom');
 var uuid = require('sdk/util/uuid').uuid();

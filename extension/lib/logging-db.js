@@ -1,5 +1,5 @@
 const {Cc, Ci} = require("chrome");
-var timers = require("timers");
+var timers = require("sdk/timers");
 var dbConnection = null;
 var asyncCallsMade = false;
 var asyncQueue = [];
