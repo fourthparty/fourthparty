@@ -3,5 +3,6 @@
 	"fullName": "The FourthParty web measurement platform.", 
 	"version": "0.01", 
 	"name": "fourthparty", 
-	"url": "http://fourthparty.info"
+	"url": "http://fourthparty.info",
+	"permissions": { "unsafe-content-script": true }
 }

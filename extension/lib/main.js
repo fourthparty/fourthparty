@@ -10,6 +10,6 @@ exports.main = function(options, callbacks) {
 	pageManager.setup();
 	httpInstrument.run();
 	cookieInstrument.run();
-    jsInstrument.run();
+    //jsInstrument.run();
     cpInstrument.run();
 };

@@ -422,18 +422,18 @@ function instrumentObjectPropertyAsVariable(object, objectName, property, proper
 // Instrumentation
 
 // Instrument window.screen.*
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window, "window", window.screen, "screen");
 
 // Instrument window.navigator.*
 // window.navigator is defined as const, so must instrument variable by variable
-// WORKS
+// BROKEN
 var navigatorProperties = [ "appCodeName", "appMinorVersion", "appName", "appVersion", "cookieEnabled", "cpuClass", "onLine", "opsProfile", "platform", "product", "systemLanguage", "userAgent", "userLanguage", "userProfile" ];
 for each (var property in navigatorProperties)
 	instrumentObjectPropertyAsVariable(window.navigator, "window.navigator", window.navigator[property], property);
 
 // Instrument each plugin in window.navigator.plugins
-// WORKS
+// BROKEN
 // TODO: Instrument plugins returned by the item and namedItem methods
 // TODO: Instrument the mime type within each plugin
 // TODO: Separately instrument the mimetypes for lookup by type and index
@@ -446,12 +446,12 @@ for(var i = 0; i < window.navigator.plugins.length; i++) {
 }
 
 // Instrument window.navigator.plugins.*
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window.navigator, "window.navigator", window.navigator.plugins, "plugins");
 
 // Instrument each mime type in window.navigator.mimeTypes
 // Uses deep copies of each mime type to preserve the path through the enabledPlugin property
-// WORKS
+// BROKEN
 // TODO: Instrument mime types returned by the item and namedItem methods
 // TODO: Separately instrument enabledPlugin for lookup by type and index
 for(var i = 0; i < window.navigator.mimeTypes.length; i++) {
@@ -465,26 +465,26 @@ for(var i = 0; i < window.navigator.mimeTypes.length; i++) {
 }
 
 // Instrument window.navigator.mimeTypes.*
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window.navigator, "window.navigator", window.navigator.mimeTypes, "mimeTypes");
 
 // Instrument window.navigator.geolocation.* (HTML5 geolocation API)
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window.navigator, "window.navigator", window.navigator.geolocation, "geolocation");
 
 // Instrument window.localStorage (HTML5 local storage API)
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window, "window", window.localStorage, "localStorage");
 
 // Instrument window.sessionStorage (HTML5 session storage API)
-// WORKS
+// BROKEN
 instrumentObjectPropertyAsObject(window, "window", window.sessionStorage, "sessionStorage");
 
 // Instrument the HTML5 storage event
 //window.addEventListener("storage", function(event) { log("EVENT: " + event.type); }, false);
 
 // Instrument window.getComputedStyle
-// WORKS
+// BROKEN
 // TODO: Better represent the element called on
 window.__defineGetter__("getComputedStyle", makeFunctionProxyHandler(window, "window.getComputedStyle", window.getComputedStyle));
 
@@ -493,7 +493,6 @@ window.__defineGetter__("getComputedStyle", makeFunctionProxyHandler(window, "wi
 var window_name = window.name;
 window.__defineGetter__("name", function() { logValue("window.name", window_name, "get"); return window_name; });
 window.__defineSetter__("name", function(value) { logValue("window.name", value, "set"); window_name = value; });
-
 }
 
 }
