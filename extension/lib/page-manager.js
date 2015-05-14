@@ -15,7 +15,7 @@ exports.setup = function() {
 		var parentID = window.parent ? pageIDFromWindow(window.parent) : -1;
 		var location = window.document && window.document.location ? window.document.location : "";
 		insertPage(pageID, location, parentID);
-	});
+	}, true);
 	
 };
 

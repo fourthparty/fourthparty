@@ -56,7 +56,7 @@ exports.run = function() {
 		httpChannelProperties.setPropertyAsInt32("request_id", requestID);
 		
 		requestID++;
-	});
+	}, true);
 	
 	// Instrument HTTP responses
 	var httpResponseHandler = function(event, isCached) {
@@ -109,11 +109,11 @@ exports.run = function() {
 	
 	events.on("http-on-examine-response", function(event) {
 		httpResponseHandler(event, false);
-	});
+	}, true);
 	
 	// Instrument cached HTTP responses
 	events.on("http-on-examine-cached-response", function(event) {
 		httpResponseHandler(event, true);
-	});
+	}, true);
 
 };

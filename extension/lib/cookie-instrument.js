@@ -38,6 +38,6 @@ exports.run = function() {
 			
 			loggingDB.executeSQL(loggingDB.createInsert("cookies", update), true);
 		}
-	});
+	}, true);
 	
 };
